@@ -1,19 +1,50 @@
--- Pet Level-Up GUI by Chazai (Visual only)
+-- Pet Level-Up GUI by Chazai (Visual only, fully draggable)
 
 local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "PetLevelUpVisual"
+gui.ResetOnSpawn = false
 
 local frame = Instance.new("Frame", gui)
 frame.Size = UDim2.new(0, 260, 0, 160)
 frame.Position = UDim2.new(0.5, -130, 0.5, -80)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.Active = true
-frame.Draggable = true
-frame.Selectable = true -- ✅ ensures draggable on all executors
+frame.BorderSizePixel = 0
 
+-- Manual Draggable Logic
+local dragging = false
+local dragInput, dragStart, startPos
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+frame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
+
+-- GUI Components
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
@@ -58,7 +89,7 @@ credit.TextColor3 = Color3.fromRGB(150, 150, 150)
 credit.Font = Enum.Font.SourceSansItalic
 credit.TextSize = 14
 
--- Pop-up Congrats
+-- Popup
 local popup = Instance.new("TextLabel", gui)
 popup.Size = UDim2.new(0, 350, 0, 50)
 popup.Position = UDim2.new(0.5, -175, 0.35, -25)
@@ -71,46 +102,46 @@ popup.Visible = false
 popup.BorderSizePixel = 0
 popup.TextWrapped = true
 
--- Find held tool
+-- Held Tool Finder
 local function getHeldTool()
-    for _, v in ipairs(char:GetChildren()) do
-        if v:IsA("Tool") then
-            return v
-        end
-    end
-    return nil
+	for _, v in ipairs(char:GetChildren()) do
+		if v:IsA("Tool") then
+			return v
+		end
+	end
+	return nil
 end
 
--- Show pop-up
+-- Show Popup
 local function showPopup(msg)
-    popup.Text = msg
-    popup.Visible = true
-    task.delay(3, function()
-        popup.Visible = false
-    end)
+	popup.Text = msg
+	popup.Visible = true
+	task.delay(3, function()
+		popup.Visible = false
+	end)
 end
 
--- Modify tool name to Age 50
+-- Update Pet Age
 local function levelUpPet(tool)
-    if tool then
-        local name = tool.Name
-        local updated = name:gsub("Age%s%d+", "Age 50")
-        if updated ~= name then
-            tool.Name = updated
-            petInfo.Text = "✅ Pet leveled to Age 50: " .. updated
-            showPopup("🎉 Congrats! You got a Level 50 pet!")
-        else
-            petInfo.Text = "❌ Couldn't find Age to update!"
-        end
-    end
+	if tool then
+		local name = tool.Name
+		local updated = name:gsub("Age%s%d+", "Age 50")
+		if updated ~= name then
+			tool.Name = updated
+			petInfo.Text = "✅ Pet leveled to Age 50: " .. updated
+			showPopup("🎉 Congrats! You got a Level 50 pet!")
+		else
+			petInfo.Text = "❌ Couldn't find Age to update!"
+		end
+	end
 end
 
--- When Button is Clicked
+-- Button Action
 button.MouseButton1Click:Connect(function()
-    local heldTool = getHeldTool()
-    if heldTool then
-        levelUpPet(heldTool)
-    else
-        petInfo.Text = "❌ Hold a pet to level up!"
-    end
+	local heldTool = getHeldTool()
+	if heldTool then
+		levelUpPet(heldTool)
+	else
+		petInfo.Text = "❌ Hold a pet to level up!"
+	end
 end)
