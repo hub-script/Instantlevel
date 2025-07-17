@@ -1,4 +1,4 @@
--- Pet Level-Up GUI by Chazai (Updates AGE only + Fake Inventory)
+-- Pet Level-Up GUI by Chazai (Visual only)
 
 local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
@@ -7,17 +7,17 @@ local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "PetLevelUpVisual"
 
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 260, 0, 180)
-frame.Position = UDim2.new(0.5, -130, 0.5, -90)
+frame.Size = UDim2.new(0, 260, 0, 160)
+frame.Position = UDim2.new(0.5, -130, 0.5, -80)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.Active = true
 frame.Draggable = true
-frame.Selectable = true -- ✅ makes it draggable reliably
+frame.Selectable = true -- ✅ ensures draggable on all executors
 
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1, 0, 0, 30)
 title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-title.Text = "🐾 Level Up Your Pets"
+title.Text = "🐾 Level Up Your Pet"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.Font = Enum.Font.SourceSansBold
 title.TextSize = 18
@@ -58,28 +58,12 @@ credit.TextColor3 = Color3.fromRGB(150, 150, 150)
 credit.Font = Enum.Font.SourceSansItalic
 credit.TextSize = 14
 
--- Fake Inventory Panel
-local inventory = Instance.new("Frame", gui)
-inventory.Size = UDim2.new(0, 260, 0, 100)
-inventory.Position = UDim2.new(0.5, -130, 0.5, 100)
-inventory.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-inventory.BorderSizePixel = 0
-
-local invLabel = Instance.new("TextLabel", inventory)
-invLabel.Size = UDim2.new(1, 0, 0, 20)
-invLabel.Position = UDim2.new(0, 0, 0, 0)
-invLabel.BackgroundTransparency = 1
-invLabel.Text = "🎒 Fake Inventory"
-invLabel.TextColor3 = Color3.new(1,1,1)
-invLabel.Font = Enum.Font.SourceSansBold
-invLabel.TextSize = 16
-
 -- Pop-up Congrats
 local popup = Instance.new("TextLabel", gui)
 popup.Size = UDim2.new(0, 350, 0, 50)
 popup.Position = UDim2.new(0.5, -175, 0.35, -25)
 popup.BackgroundColor3 = Color3.fromRGB(50, 200, 100)
-popup.Text = "🎉 Congrats! You got a Level 50 pet. Check your inventory!"
+popup.Text = "🎉 Congrats! You got a Level 50 pet!"
 popup.TextColor3 = Color3.new(1, 1, 1)
 popup.Font = Enum.Font.SourceSansBold
 popup.TextSize = 20
@@ -106,20 +90,6 @@ local function showPopup(msg)
     end)
 end
 
--- Add fake item to GUI
-local function addFakeInventoryItem(name)
-    local item = Instance.new("TextLabel", inventory)
-    item.Size = UDim2.new(0, 120, 0, 25)
-    item.Position = UDim2.new(0, 10 + (#inventory:GetChildren() - 2) * 130, 0, 30)
-    item.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    item.TextColor3 = Color3.new(1, 1, 1)
-    item.Font = Enum.Font.SourceSans
-    item.TextSize = 14
-    item.Text = name
-    item.TextXAlignment = Enum.TextXAlignment.Left
-    item.BorderSizePixel = 0
-end
-
 -- Modify tool name to Age 50
 local function levelUpPet(tool)
     if tool then
@@ -128,8 +98,7 @@ local function levelUpPet(tool)
         if updated ~= name then
             tool.Name = updated
             petInfo.Text = "✅ Pet leveled to Age 50: " .. updated
-            showPopup("🎉 Congrats! You got a Level 50 pet. Check your inventory!")
-            addFakeInventoryItem(updated)
+            showPopup("🎉 Congrats! You got a Level 50 pet!")
         else
             petInfo.Text = "❌ Couldn't find Age to update!"
         end
