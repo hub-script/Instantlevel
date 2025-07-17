@@ -1,0 +1,111 @@
+-- Client Visual Pet Level-Up GUI (Draggable) by Chazai
+
+-- GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "PetVisualLevelUp"
+gui.ResetOnSpawn = false
+gui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 260, 0, 170)
+frame.Position = UDim2.new(0.5, -130, 0.5, -85)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true -- ✅ Draggable frame
+frame.Parent = gui
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+title.Text = "🐾 Level Up Your Pets"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 18
+title.Parent = frame
+
+-- User Label
+local user = Instance.new("TextLabel")
+user.Size = UDim2.new(1, 0, 0, 25)
+user.Position = UDim2.new(0, 0, 0, 30)
+user.BackgroundTransparency = 1
+user.Text = "User: ScriptByteX"
+user.TextColor3 = Color3.fromRGB(255, 100, 100)
+user.Font = Enum.Font.SourceSans
+user.TextSize = 16
+user.Parent = frame
+
+-- Level Up Button
+local button = Instance.new("TextButton")
+button.Size = UDim2.new(0.8, 0, 0, 40)
+button.Position = UDim2.new(0.1, 0, 0, 60)
+button.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+button.Text = "🔥 Level Up 50+ Instantly"
+button.TextColor3 = Color3.new(1, 1, 1)
+button.Font = Enum.Font.SourceSansBold
+button.TextSize = 16
+button.Parent = frame
+
+-- Pet Info Display
+local petInfo = Instance.new("TextLabel")
+petInfo.Size = UDim2.new(1, 0, 0, 30)
+petInfo.Position = UDim2.new(0, 0, 0, 110)
+petInfo.BackgroundTransparency = 1
+petInfo.TextColor3 = Color3.fromRGB(180, 255, 180)
+petInfo.Font = Enum.Font.SourceSans
+petInfo.TextSize = 14
+petInfo.Text = ""
+petInfo.Parent = frame
+
+-- Created by Label
+local credit = Instance.new("TextLabel")
+credit.Size = UDim2.new(1, 0, 0, 20)
+credit.Position = UDim2.new(0, 0, 1, -20)
+credit.BackgroundTransparency = 1
+credit.Text = "Created by Chazai"
+credit.TextColor3 = Color3.fromRGB(150, 150, 150)
+credit.Font = Enum.Font.SourceSansItalic
+credit.TextSize = 14
+credit.Parent = frame
+
+-- Extract pet info from Tool name like: "Starfish [2.18 KG] [Age 11]"
+local function extractPetStats(toolName)
+    local name = toolName:match("^(.-)%s%[")
+    local weight = toolName:match("%[(.-)KG%]")
+    local age = toolName:match("Age%s(%d+)")
+    
+    if name and weight and age then
+        return "Pet: " .. name .. " | Age: " .. age .. " | Weight: " .. weight .. " KG"
+    else
+        return nil
+    end
+end
+
+-- Check if holding a Tool (Pet/Fruit)
+local function getHeldTool()
+    local char = game.Players.LocalPlayer.Character
+    if not char then return nil end
+    for _, tool in ipairs(char:GetChildren()) do
+        if tool:IsA("Tool") then
+            return tool
+        end
+    end
+    return nil
+end
+
+-- Button Logic
+button.MouseButton1Click:Connect(function()
+    local heldTool = getHeldTool()
+    if heldTool then
+        local petStats = extractPetStats(heldTool.Name)
+        if petStats then
+            petInfo.Text = petStats
+        else
+            petInfo.Text = "❌ Not a valid pet format!"
+        end
+    else
+        petInfo.Text = "❌ Hold a pet to level up!"
+    end
+end)
