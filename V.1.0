@@ -1,19 +1,18 @@
--- Pet Level-Up GUI by Chazai (Fake Visual Only)
+-- Pet Level-Up GUI by Chazai (Updates AGE only + Fake Inventory)
 
 local player = game.Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 
--- Create GUI
 local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 gui.Name = "PetLevelUpVisual"
 
--- Draggable Frame
 local frame = Instance.new("Frame", gui)
 frame.Size = UDim2.new(0, 260, 0, 180)
 frame.Position = UDim2.new(0.5, -130, 0.5, -90)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.Active = true
 frame.Draggable = true
+frame.Selectable = true -- ✅ makes it draggable reliably
 
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1, 0, 0, 30)
@@ -27,7 +26,7 @@ local user = Instance.new("TextLabel", frame)
 user.Size = UDim2.new(1, 0, 0, 25)
 user.Position = UDim2.new(0, 0, 0, 30)
 user.BackgroundTransparency = 1
-user.Text = "User: "..player.Name
+user.Text = "User: ScriptByteX"
 user.TextColor3 = Color3.fromRGB(255, 100, 100)
 user.Font = Enum.Font.SourceSans
 user.TextSize = 16
@@ -59,10 +58,10 @@ credit.TextColor3 = Color3.fromRGB(150, 150, 150)
 credit.Font = Enum.Font.SourceSansItalic
 credit.TextSize = 14
 
--- Fake Inventory
+-- Fake Inventory Panel
 local inventory = Instance.new("Frame", gui)
-inventory.Size = UDim2.new(0, 280, 0, 120)
-inventory.Position = UDim2.new(0.5, -140, 0.5, 110)
+inventory.Size = UDim2.new(0, 260, 0, 100)
+inventory.Position = UDim2.new(0.5, -130, 0.5, 100)
 inventory.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 inventory.BorderSizePixel = 0
 
@@ -75,7 +74,7 @@ invLabel.TextColor3 = Color3.new(1,1,1)
 invLabel.Font = Enum.Font.SourceSansBold
 invLabel.TextSize = 16
 
--- Pop-up Message
+-- Pop-up Congrats
 local popup = Instance.new("TextLabel", gui)
 popup.Size = UDim2.new(0, 350, 0, 50)
 popup.Position = UDim2.new(0.5, -175, 0.35, -25)
@@ -88,7 +87,7 @@ popup.Visible = false
 popup.BorderSizePixel = 0
 popup.TextWrapped = true
 
--- Held tool check
+-- Find held tool
 local function getHeldTool()
     for _, v in ipairs(char:GetChildren()) do
         if v:IsA("Tool") then
@@ -98,7 +97,7 @@ local function getHeldTool()
     return nil
 end
 
--- Pop-up trigger
+-- Show pop-up
 local function showPopup(msg)
     popup.Text = msg
     popup.Visible = true
@@ -107,49 +106,37 @@ local function showPopup(msg)
     end)
 end
 
--- Fake Inventory Item with icon
+-- Add fake item to GUI
 local function addFakeInventoryItem(name)
-    local itemFrame = Instance.new("Frame", inventory)
-    itemFrame.Size = UDim2.new(0, 130, 0, 35)
-    itemFrame.Position = UDim2.new(0, 10 + (#inventory:GetChildren() - 2) * 135, 0, 30)
-    itemFrame.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    itemFrame.BorderSizePixel = 0
-
-    local icon = Instance.new("ImageLabel", itemFrame)
-    icon.Size = UDim2.new(0, 30, 0, 30)
-    icon.Position = UDim2.new(0, 2, 0, 2)
-    icon.Image = "rbxassetid://7072717902" -- default pet icon (you can change this)
-    icon.BackgroundTransparency = 1
-
-    local label = Instance.new("TextLabel", itemFrame)
-    label.Size = UDim2.new(1, -35, 1, 0)
-    label.Position = UDim2.new(0, 35, 0, 0)
-    label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.new(1, 1, 1)
-    label.Font = Enum.Font.SourceSans
-    label.TextSize = 14
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Text = name
+    local item = Instance.new("TextLabel", inventory)
+    item.Size = UDim2.new(0, 120, 0, 25)
+    item.Position = UDim2.new(0, 10 + (#inventory:GetChildren() - 2) * 130, 0, 30)
+    item.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    item.TextColor3 = Color3.new(1, 1, 1)
+    item.Font = Enum.Font.SourceSans
+    item.TextSize = 14
+    item.Text = name
+    item.TextXAlignment = Enum.TextXAlignment.Left
+    item.BorderSizePixel = 0
 end
 
--- Level Up Held Pet (visual only)
+-- Modify tool name to Age 50
 local function levelUpPet(tool)
     if tool then
         local name = tool.Name
-        local updated = name:gsub("Age%s*%d+", "Age 50")
-        if updated == name and not name:find("Age") then
-            updated = name .. " Age 50"
+        local updated = name:gsub("Age%s%d+", "Age 50")
+        if updated ~= name then
+            tool.Name = updated
+            petInfo.Text = "✅ Pet leveled to Age 50: " .. updated
+            showPopup("🎉 Congrats! You got a Level 50 pet. Check your inventory!")
+            addFakeInventoryItem(updated)
+        else
+            petInfo.Text = "❌ Couldn't find Age to update!"
         end
-        tool.Name = updated
-        petInfo.Text = "✅ Pet leveled to Age 50: " .. updated
-        showPopup("🎉 Congrats! You got a Level 50 pet. Check your inventory!")
-        addFakeInventoryItem(updated)
-    else
-        petInfo.Text = "❌ Couldn't find pet name."
     end
 end
 
--- Button Clicked
+-- When Button is Clicked
 button.MouseButton1Click:Connect(function()
     local heldTool = getHeldTool()
     if heldTool then
